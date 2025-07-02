@@ -1,6 +1,31 @@
 # Task Scheduler
 
-A robust Python background task management system that automatically handles dependencies, scheduling, and execution of tasks with built-in memory management and monitoring.
+A robust Python background task management system that automatically handles dependencies, scheduling, overdue handling and execution of tasks with built-in memory management and monitoring.
+
+Super simple example task:
+
+```python
+"""
+---
+title: "Hello World Task"
+description: "A simple example task"
+dependencies: []
+enabled: true
+timeout: 60
+---
+"""
+
+from task_scheduler.decorators import repeat, every
+from helpers import log_task_start, log_task_complete, log_info
+
+@repeat(every(10).minutes)
+def start():
+    """This function will be called every 10 minutes at clock boundaries"""
+    log_info("Hello from scheduled task!") # Logs to logs/tasks.log with [Hello World Task] prefix
+```
+
+Comes with more built in example tasks to get you started.
+
 
 ## Features
 
@@ -11,7 +36,6 @@ A robust Python background task management system that automatically handles dep
 - **Database Tracking**: SQLite database tracks execution history and handles missed schedules
 - **Comprehensive Logging**: Structured logging with rotation and task-specific logs
 - **Hybrid Scheduling System**: Combines cron-like precision with overdue task detection
-- **Cross-platform Notifications**: Built-in system notification support for macOS, Linux, and Windows
 - **Frontmatter Task Configuration**: YAML frontmatter in docstrings for IDE compatibility
 
 ## Project Structure
