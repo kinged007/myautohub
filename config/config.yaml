@@ -1,0 +1,26 @@
+scheduler:
+  loop_interval: 10  # seconds between main loop iterations
+  task_check_interval: 5  # seconds between task file checks
+  memory_cleanup_interval: 300  # seconds between memory cleanup cycles
+  max_memory_usage: 500  # MB - restart if exceeded
+
+database:
+  path: "scheduler.db"
+  backup_interval: 3600  # seconds between database backups
+
+logging:
+  level: "INFO"
+  file: "scheduler.log"
+  max_size: "10 MB"
+  retention: "7 days"
+  rotation: "daily"
+
+virtual_env:
+  path: "venv"
+  python_executable: "python3"
+
+tasks:
+  directory: "tasks"
+  file_pattern: "*.py"
+  reload_on_change: true
+  include_example_tasks: false  # Set to true to include tasks prefixed with 'example_'
