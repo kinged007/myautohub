@@ -76,8 +76,10 @@ class TaskScheduler:
     def _load_config(self) -> Dict:
         """Load configuration from YAML file"""
         try:
-            with open(self.config_path, 'r') as f:
-                return yaml.safe_load(f)
+            # Import here to avoid circular imports
+            from helpers.config_loader import load_config
+            config_name = self.config_path.name
+            return load_config(config_name)
         except Exception as e:
             logger.error(f"Failed to load config: {e}")
             sys.exit(1)

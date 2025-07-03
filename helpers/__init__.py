@@ -16,6 +16,10 @@ from .task_logging import (
     log_task_start, log_task_complete, log_task_error, log_execution_result,
     log_structured_data, create_task_logger, task_log, task_info, task_error
 )
+from .config_loader import (
+    load_config, get_config_value, save_config,
+    list_config_files, get_project_root
+)
 
 __all__ = [
     # System notifications
@@ -32,5 +36,12 @@ __all__ = [
     # Task logging
     'log', 'log_info', 'log_error', 'log_warning', 'log_debug', 'log_critical',
     'log_task_start', 'log_task_complete', 'log_task_error', 'log_execution_result',
-    'log_structured_data', 'create_task_logger', 'task_log', 'task_info', 'task_error'
+    'log_structured_data', 'create_task_logger', 'task_log', 'task_info', 'task_error',
+
+    # Configuration management
+    'load_config',
+    'get_config_value',
+    'save_config',
+    'list_config_files',
+    'get_project_root'
 ]

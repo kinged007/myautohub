@@ -19,7 +19,6 @@ Options:
 import sys
 import sqlite3
 import argparse
-import yaml
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -28,20 +27,7 @@ project_dir = Path(__file__).parent.parent
 sys.path.insert(0, str(project_dir))
 
 from task_scheduler.database import DatabaseManager, TaskSchedule
-
-
-def load_config(config_path: Path = None):
-    """Load configuration from YAML file"""
-    if config_path is None:
-        config_path = project_dir / "config" / "config.yaml"
-
-    try:
-        with open(config_path, 'r') as f:
-            return yaml.safe_load(f)
-    except Exception as e:
-        print(f"Failed to load config from {config_path}: {e}")
-        # Fallback to default path
-        return {"database": {"path": "scheduler.db"}}
+from helpers.config_loader import load_config
 
 
 def parse_arguments():

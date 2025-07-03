@@ -242,6 +242,15 @@ config/local.yaml
 config/production.yaml
 config/development.yaml
 
+# Secrets and task-specific configs (keep .example files, ignore actual configs)
+config/*
+!config/config.yaml
+!config/*.example
+config/secrets.yaml
+config/*_secrets.yaml
+
+
+
 # PID files
 *.pid
 
@@ -279,3 +288,5 @@ tasks/*
 # Save custom tasks to git. uncomment to enable
 # !tasks/*.py
 
+# Save custom configs to git. uncomment to enable. Careful to not commit secrets!
+# !config/*.yaml

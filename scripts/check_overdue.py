@@ -4,25 +4,16 @@ Check which tasks are considered overdue
 """
 
 import sqlite3
-import yaml
+import sys
 from datetime import datetime
 from pathlib import Path
 
 # Add project directory to path
 project_dir = Path(__file__).parent.parent
+sys.path.insert(0, str(project_dir))
 
-def load_config(config_path: Path = None):
-    """Load configuration from YAML file"""
-    if config_path is None:
-        config_path = project_dir / "config" / "config.yaml"
-
-    try:
-        with open(config_path, 'r') as f:
-            return yaml.safe_load(f)
-    except Exception as e:
-        print(f"Failed to load config from {config_path}: {e}")
-        # Fallback to default path
-        return {"database": {"path": "scheduler.db"}}
+# Import config helper
+from helpers.config_loader import load_config
 
 def main():
     config = load_config()

@@ -23,7 +23,6 @@ import signal
 import argparse
 import subprocess
 import psutil
-import yaml
 from pathlib import Path
 from typing import List, Optional
 
@@ -31,20 +30,8 @@ from typing import List, Optional
 project_dir = Path(__file__).parent.parent
 sys.path.insert(0, str(project_dir))
 
-
-def load_config(config_path=None):
-    """Load configuration from YAML file"""
-    if config_path is None:
-        config_path = project_dir / "config" / "config.yaml"
-    else:
-        config_path = Path(config_path)
-    
-    try:
-        with open(config_path, 'r') as f:
-            return yaml.safe_load(f)
-    except Exception as e:
-        print(f"Failed to load config from {config_path}: {e}")
-        return {}
+# Import config helper
+from helpers.config_loader import get_config_value
 
 
 def find_scheduler_processes() -> List[psutil.Process]:
@@ -168,9 +155,9 @@ def force_kill(process):
 def start_scheduler(config_path, daemon=False):
     """Start the scheduler process as a detached background process"""
     try:
-        # Load config to get the correct Python executable
-        config = load_config(config_path)
-        python_executable = config.get('virtual_env', {}).get('python_executable', 'python3')
+        # Get the correct Python executable from config
+        config_name = Path(config_path).name if config_path else "config.yaml"
+        python_executable = get_config_value('virtual_env.python_executable', config_name, default='python3')
 
         # Use the venv python if it exists, otherwise use the configured executable
         venv_python = project_dir / "venv" / "bin" / "python"

@@ -32,11 +32,13 @@ Comes with more built in example tasks to get you started.
 - **Cron-like Scheduling**: Tasks run at clock boundaries (e.g., every 5 minutes at :00, :05, :10) instead of relative intervals
 - **Automatic Dependency Management**: Tasks specify their own Python package requirements in frontmatter
 - **Dynamic Task Loading**: Automatically discovers and loads new task files without restart
+- **Flexible Configuration Management**: Centralized config system with task-specific configs and secrets management
 - **Memory Management**: Built-in memory cleanup and monitoring to prevent memory leaks
 - **Database Tracking**: SQLite database tracks execution history and handles missed schedules
 - **Comprehensive Logging**: Structured logging with rotation and task-specific logs
 - **Hybrid Scheduling System**: Combines cron-like precision with overdue task detection
 - **Frontmatter Task Configuration**: YAML frontmatter in docstrings for IDE compatibility
+- **Hot Configuration Reloading**: Config changes applied automatically without restart
 
 ## Project Structure
 
@@ -48,9 +50,11 @@ task-scheduler/
 ├── tasks/                   # Directory for task files
 ├── helpers/                 # Reusable helper modules with dependencies
 │   ├── __init__.py          # Helper module imports
+│   ├── config_loader.py     # Configuration management
 │   ├── system_notifications.py  # Cross-platform notifications
-│   └── external_execution.py    # External script/command execution
-|   └── ...                  # More helper modules
+│   ├── external_execution.py    # External script/command execution
+│   ├── task_logging.py      # Task logging utilities
+│   └── ...                  # More helper modules
 ├── config/                  # Configuration files
 │   └── config.yaml
 ├── logs/                    # Log files
@@ -273,12 +277,106 @@ The scheduler includes several example tasks (prefixed with `example_`) that dem
 - `example_system_monitor.py` - System monitoring and alerts
 - `example_external_execution.py` - External script execution
 - `example_system_notification.py` - Cross-platform notifications
+- `example_config_usage.py` - Configuration management and task-specific configs
+- `example_helper_showcase.py` - Comprehensive helper system demonstration
 
 **Configuration**: Set `include_example_tasks: true` in `config/config.yaml` to enable example tasks, or `false` to ignore them. This is useful for:
 
 - **Development**: Enable examples to test scheduler functionality
 - **Production**: Disable examples to run only your custom tasks
 - **Learning**: Study example implementations for best practices
+
+## Configuration Management
+
+The scheduler includes a centralized configuration system that allows tasks to load their own configuration files for secrets and task-specific settings.
+
+### Config Helper
+
+Use the config helper to manage configurations in your tasks with simple imports:
+
+```python
+# Simple import from helpers package
+from helpers import load_config, get_config_value, save_config, log
+
+# Load main configuration
+config = load_config()  # Loads config/config.yaml
+
+# Load task-specific configuration
+task_config = load_config("my_task.yaml")  # Loads config/my_task.yaml
+
+# Get specific values with dot notation and defaults
+api_key = get_config_value("api.key", "secrets.yaml", default="not-set")
+timeout = get_config_value("timeout", "my_task.yaml", default=30)
+
+# Save configuration
+new_config = {"setting": "value"}
+save_config(new_config, "my_task.yaml")
+```
+
+**Available Functions:**
+- `load_config(config_name)` - Load any YAML config from config/ directory
+- `get_config_value(key_path, config_name, default)` - Get values using dot notation
+- `save_config(config_data, config_name)` - Save configuration data
+- `list_config_files()` - List all available config files
+- `get_project_root()` - Get the project root directory
+
+
+### Secrets Management
+
+1. **Copy the example**: `cp config/secrets.yaml.example config/secrets.yaml`
+2. **Add your secrets** to `config/secrets.yaml`
+3. **Load in tasks**:
+   ```python
+   secrets = load_config("secrets.yaml")
+   api_key = secrets.get("api_keys", {}).get("openai")
+   ```
+
+The `secrets.yaml` file is automatically excluded from git commits.
+
+## Helper System
+
+The scheduler includes a comprehensive helper system that provides reusable functions for common task operations. All helpers are available through simple imports:
+
+```python
+# Import everything you need from the helpers package
+from helpers import (
+    # Configuration management
+    load_config, get_config_value, save_config,
+
+    # Logging
+    log, log_info, log_error, log_warning,
+
+    # System notifications
+    send_notification, send_and_log_notification,
+
+    # External execution
+    execute_python_script, execute_cli_command
+)
+```
+
+### Available Built-in Helpers
+
+- **Configuration Management** (`config_loader.py`):
+  - Centralized config loading with task-specific configs
+  - Secrets management and dot notation access
+  - Automatic fallbacks and error handling
+
+- **Task Logging** (`task_logging.py`):
+  - Structured logging with automatic task name detection
+  - Multiple log levels and task-specific log files
+  - Execution result logging and error handling
+
+- **System Notifications** (`system_notifications.py`):
+  - Cross-platform desktop notifications
+  - Integration with logging system
+  - Configurable notification settings
+
+- **External Execution** (`external_execution.py`):
+  - Execute Python scripts and CLI commands
+  - Retry mechanisms and timeout handling
+  - Result processing and error capture
+
+Each helper manages its own dependencies automatically, so you only install what you use.
 
 ## Usage
 
