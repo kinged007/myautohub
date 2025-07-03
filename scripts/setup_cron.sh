@@ -30,11 +30,25 @@ if [[ ! -f "$PROJECT_DIR/main.py" ]]; then
     exit 1
 fi
 
+# Read Python executable from config
+CONFIG_FILE="$PROJECT_DIR/config/config.yaml"
+PYTHON_EXECUTABLE="python3"  # Default fallback
+
+if [[ -f "$CONFIG_FILE" ]]; then
+    # Extract python_executable from YAML config
+    PYTHON_EXECUTABLE=$(grep "python_executable:" "$CONFIG_FILE" | sed 's/.*python_executable: *"\([^"]*\)".*/\1/')
+    if [[ -z "$PYTHON_EXECUTABLE" ]]; then
+        PYTHON_EXECUTABLE="python3"  # Fallback if not found
+    fi
+fi
+
+echo -e "${YELLOW}Using Python executable: $PYTHON_EXECUTABLE${NC}"
+
 # Create virtual environment if it doesn't exist
 if [[ ! -d "$PROJECT_DIR/venv" ]]; then
-    echo -e "${YELLOW}Creating virtual environment${NC}"
+    echo -e "${YELLOW}Creating virtual environment with $PYTHON_EXECUTABLE${NC}"
     cd "$PROJECT_DIR"
-    python3 -m venv venv
+    "$PYTHON_EXECUTABLE" -m venv venv
     source venv/bin/activate
     pip install --upgrade pip
     pip install -r requirements.txt
@@ -55,7 +69,7 @@ cd "$PROJECT_DIR"
 source venv/bin/activate
 
 # Run the scheduler
-python main.py --config config/config.yaml
+"$PYTHON_EXECUTABLE" main.py --config config/config.yaml
 
 # Log exit code
 echo "Task scheduler exited with code: \$?" >> logs/cron.log
@@ -139,7 +153,7 @@ cd "\$PROJECT_ROOT"
 if [[ -f "\$SCRIPT_DIR/restart_scheduler.py" ]]; then
     # Use our Python restart script for reliable startup
     log_message "Using restart_scheduler.py to start scheduler"
-    if python "\$SCRIPT_DIR/restart_scheduler.py" --timeout 10 >> "\$LOGFILE" 2>&1; then
+    if "$PYTHON_EXECUTABLE" "\$SCRIPT_DIR/restart_scheduler.py" --timeout 10 >> "\$LOGFILE" 2>&1; then
         PID=\$(get_scheduler_pid)
         if [[ -n "\$PID" ]]; then
             log_message "Successfully started Task Scheduler (PID: \$PID)"
@@ -159,7 +173,7 @@ else
     fi
 
     # Start scheduler as detached process
-    nohup python main.py --config "\$CONFIG_FILE" > logs/scheduler.out 2>&1 &
+    nohup "$PYTHON_EXECUTABLE" main.py --config "\$CONFIG_FILE" > logs/scheduler.out 2>&1 &
     STARTUP_PID=\$!
 
     # Give it time to start and set process name
@@ -197,19 +211,19 @@ echo "# Rotate logs daily at 2 AM"
 echo "0 2 * * * $LOG_ROTATE_SCRIPT"
 echo ""
 echo "# Optional: Restart scheduler daily at 3 AM (for memory cleanup)"
-echo "0 3 * * * $PROJECT_DIR/scripts/restart_scheduler.py --timeout 10"
+echo "0 3 * * * $PYTHON_EXECUTABLE $PROJECT_DIR/scripts/restart_scheduler.py --timeout 10"
 echo ""
 echo -e "${YELLOW}3. Manual commands:${NC}"
 echo "   # Start scheduler:"
 echo "   $WRAPPER_SCRIPT"
 echo "   # Or use the restart script:"
-echo "   python $PROJECT_DIR/scripts/restart_scheduler.py"
+echo "   $PYTHON_EXECUTABLE $PROJECT_DIR/scripts/restart_scheduler.py"
 echo ""
 echo -e "${YELLOW}4. Check status:${NC}"
 echo "   # Check if scheduler is running:"
 echo "   ps aux | grep myautohub-scheduler"
 echo "   # Or use the restart script in dry-run mode:"
-echo "   python $PROJECT_DIR/scripts/restart_scheduler.py --dry-run"
+echo "   $PYTHON_EXECUTABLE $PROJECT_DIR/scripts/restart_scheduler.py --dry-run"
 echo "   # View logs:"
 echo "   tail -f $PROJECT_DIR/logs/scheduler.log"
 echo "   tail -f $PROJECT_DIR/logs/monitor.log"

@@ -32,10 +32,12 @@ project_dir = Path(__file__).parent.parent
 sys.path.insert(0, str(project_dir))
 
 
-def load_config(config_path: Path = None):
+def load_config(config_path=None):
     """Load configuration from YAML file"""
     if config_path is None:
         config_path = project_dir / "config" / "config.yaml"
+    else:
+        config_path = Path(config_path)
     
     try:
         with open(config_path, 'r') as f:
@@ -115,7 +117,7 @@ def find_scheduler_processes() -> List[psutil.Process]:
     return processes
 
 
-def graceful_shutdown(process: psutil.Process, timeout: int = 10) -> bool:
+def graceful_shutdown(process, timeout=10):
     """Attempt graceful shutdown of the process"""
     try:
         print(f"Sending SIGTERM to process {process.pid}...")
@@ -143,7 +145,7 @@ def graceful_shutdown(process: psutil.Process, timeout: int = 10) -> bool:
         return False
 
 
-def force_kill(process: psutil.Process) -> bool:
+def force_kill(process):
     """Force kill the process"""
     try:
         print(f"Force killing process {process.pid}...")
@@ -163,10 +165,21 @@ def force_kill(process: psutil.Process) -> bool:
         return False
 
 
-def start_scheduler(config_path: Path, daemon: bool = False) -> bool:
+def start_scheduler(config_path, daemon=False):
     """Start the scheduler process as a detached background process"""
     try:
-        cmd = [sys.executable, str(project_dir / "main.py"), "--config", str(config_path)]
+        # Load config to get the correct Python executable
+        config = load_config(config_path)
+        python_executable = config.get('virtual_env', {}).get('python_executable', 'python3')
+
+        # Use the venv python if it exists, otherwise use the configured executable
+        venv_python = project_dir / "venv" / "bin" / "python"
+        if venv_python.exists():
+            python_cmd = str(venv_python)
+        else:
+            python_cmd = python_executable
+
+        cmd = [python_cmd, str(project_dir / "main.py"), "--config", str(config_path)]
 
         if daemon:
             cmd.append("--daemon")
