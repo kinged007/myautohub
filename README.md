@@ -83,7 +83,7 @@ task-scheduler/
 
 1. **Clone or download the project**:
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/kinged007/myautohub
    cd task-scheduler
    ```
 
@@ -102,7 +102,7 @@ task-scheduler/
 
 1. **Setup the project**:
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/kinged007/myautohub
    cd task-scheduler
    python3 -m venv venv
    source venv/bin/activate
@@ -872,7 +872,7 @@ tail -f logs/tasks.log                         # Monitor task execution
 
 ```bash
 # Clone and setup
-git clone <repository-url>
+git clone https://github.com/kinged007/myautohub
 cd task-scheduler
 python3 -m venv venv
 source venv/bin/activate
